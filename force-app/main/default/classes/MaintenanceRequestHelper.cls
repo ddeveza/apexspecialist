@@ -15,8 +15,7 @@ public with sharing class MaintenanceRequestHelper {
  
         if (!validIds.isEmpty()){
             List<Case> newCases = new List<Case>();
-            Map<Id,Case> closedCasesM = new Map<Id,Case>([SELECT Id, Vehicle__c, Equipment__c, Equipment__r.Maintenance_Cycle__c,(SELECT Id,Equipment__c,Quantity__c FROM Equipment_Maintenance_Items__r) 
-                                                         FROM Case WHERE Id IN :validIds]);
+            Map<Id,Case> closedCasesM = new Map<Id,Case>([SELECT Id, Vehicle__c, Equipment_Maintenance_Item__r.Maintenance_Cycle__c,(SELECT Id,Quantity__c FROM Equipment_Maintenance_Items__r) FROM Case WHERE Id IN :validIds]);
             Map<Id,Decimal> maintenanceCycles = new Map<ID,Decimal>();
             AggregateResult[] results = [SELECT Maintenance_Request__c, MIN(Equipment__r.Maintenance_Cycle__c)cycle FROM Equipment_Maintenance_Item__c WHERE Maintenance_Request__c IN :ValidIds GROUP BY Maintenance_Request__c];
  
@@ -31,11 +30,12 @@ public with sharing class MaintenanceRequestHelper {
                     Subject = 'Routine Maintenance',
                     Type = 'Routine Maintenance',
                     Vehicle__c = cc.Vehicle__c,
-                    Equipment__c =cc.Equipment__c,
                     Origin = 'Web',
                     Date_Reported__c = Date.Today()
  
                 );
+
+                
  
                 If (maintenanceCycles.containskey(cc.Id)){
                     nc.Date_Due__c = Date.today().addDays((Integer) maintenanceCycles.get(cc.Id));

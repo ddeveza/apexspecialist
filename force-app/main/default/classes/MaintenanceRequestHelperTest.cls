@@ -22,12 +22,11 @@ public with sharing class MaintenanceRequestHelperTest {
         return equipment;
     }
  
-    PRIVATE STATIC Case createMaintenanceRequest(id vehicleId, id equipmentId){
+    PRIVATE STATIC Case createMaintenanceRequest(id vehicleId){
         case cs = new case(Type=REPAIR,
                           Status=STATUS_NEW,
                           Origin=REQUEST_ORIGIN,
                           Subject=REQUEST_SUBJECT,
-                          Equipment__c=equipmentId,
                           Vehicle__c=vehicleId);
         return cs;
     }
@@ -49,7 +48,7 @@ public with sharing class MaintenanceRequestHelperTest {
         insert equipment;
         id equipmentId = equipment.Id;
  
-        case somethingToUpdate = createMaintenanceRequest(vehicleId,equipmentId);
+        case somethingToUpdate = createMaintenanceRequest(vehicleId);
         insert somethingToUpdate;
  
         Equipment_Maintenance_Item__c workP = createWorkPart(equipmentId,somethingToUpdate.id);
@@ -60,7 +59,7 @@ public with sharing class MaintenanceRequestHelperTest {
         update somethingToUpdate;
         test.stopTest();
  
-        Case newReq = [Select id, subject, type, Equipment__c, Date_Reported__c, Vehicle__c, Date_Due__c
+        Case newReq = [Select id, subject, type, Date_Reported__c, Vehicle__c, Date_Due__c
                       from case
                       where status =:STATUS_NEW];
  
@@ -71,7 +70,6 @@ public with sharing class MaintenanceRequestHelperTest {
         system.assert(workPart != null);
         system.assert(newReq.Subject != null);
         system.assertEquals(newReq.Type, REQUEST_TYPE);
-        SYSTEM.assertEquals(newReq.Equipment__c, equipmentId);
         SYSTEM.assertEquals(newReq.Vehicle__c, vehicleId);
         SYSTEM.assertEquals(newReq.Date_Reported__c, system.today());
     }
@@ -86,7 +84,7 @@ public with sharing class MaintenanceRequestHelperTest {
         insert equipment;
         id equipmentId = equipment.Id;
  
-        case emptyReq = createMaintenanceRequest(vehicleId,equipmentId);
+        case emptyReq = createMaintenanceRequest(vehicleId);
         insert emptyReq;
  
         Equipment_Maintenance_Item__c workP = createWorkPart(equipmentId, emptyReq.Id);
@@ -124,7 +122,7 @@ public with sharing class MaintenanceRequestHelperTest {
         insert equipmentList;
  
         for(integer i = 0; i < 300; i++){
-            requestList.add(createMaintenanceRequest(vehicleList.get(i).id, equipmentList.get(i).id));
+            requestList.add(createMaintenanceRequest(vehicleList.get(i).id));
         }
         insert requestList;
  
